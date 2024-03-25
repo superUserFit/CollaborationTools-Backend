@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Req } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './user.schema';
@@ -6,6 +6,7 @@ import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpDTO } from './dto/signup.dto';
 import { LoginDTO } from './dto/login.dto';
+import { UpdateProfileDTO } from './dto/update-profile.dto';
 
 
 @Injectable()
@@ -52,5 +53,9 @@ export class UserService {
         const token = this.jwtService.sign({ id: user._id });
 
         return { status: 200, token, message: 'Login successfull' };
+    }
+
+    async updateProfile(updateProfileDTO:UpdateProfileDTO, @Req req): Promise<{ status: number, user: any }> {
+        const { firstName, lastName, username, email, password } = updateProfileDTO;
     }
 }
