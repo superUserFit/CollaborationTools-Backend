@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class UpdateProfileDTO {
     @IsString()
@@ -10,11 +10,6 @@ export class UpdateProfileDTO {
     @IsNotEmpty()
     readonly username: string;
 
-    @IsNotEmpty()
-    @IsEmail({}, { message: 'Email cannot be empty.'})
-    readonly email: string;
-
-    @IsNotEmpty()
-    @MinLength(8, { message: 'Password must be 8 characters or above.'})
-    readonly password: string;
+    @IsString()
+    readonly role: string;
 }

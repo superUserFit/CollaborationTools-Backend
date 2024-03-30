@@ -1,10 +1,12 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { RoomModule } from './room/room.module';
+import { AuthMiddleware } from './middleware/Auth.middleware';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './user/jwt.strategy';
 
 @Module({
   imports: [
@@ -14,10 +16,22 @@ import { RoomModule } from './room/room.module';
     }),
     MongooseModule.forRoot(process.env.DB_URL),
     UserModule,
-    RoomModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 
-export class AppModule {}
+export class AppModule implements NestModule{
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+    .apply(AuthMiddleware)
+    .exclude(
+      { path: 'api/user/signup', method: RequestMethod.POST},
+      { path: 'api/user/login', method: RequestMethod.POST},
+    )
+    .forRoutes('api/user/*')
+  }
+}

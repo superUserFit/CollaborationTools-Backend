@@ -11,6 +11,9 @@ export class SignUpDTO {
     @IsString()
     readonly username: string;
 
+    @IsString()
+    readonly role: string;
+
     @IsNotEmpty()
     @IsEmail({}, { message: 'Please enter the correct email.' })
     readonly email: string;

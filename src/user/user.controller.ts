@@ -1,8 +1,15 @@
-import { Body, Controller, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Patch,
+    Post,
+    Req,
+    Get,
+    Delete
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { SignUpDTO } from './dto/signup.dto';
 import { LoginDTO } from './dto/login.dto';
-import { AuthMiddleware } from 'src/middleware/Auth.middleware';
 import { UpdateProfileDTO } from './dto/update-profile.dto';
 
 @Controller('api/user')
@@ -19,10 +26,18 @@ export class UserController {
         return this.userService.login(loginDTO);
     }
 
-    @Patch()
-    @UseGuards(AuthMiddleware)
-    updateProfile(@Body() updateProfileDTO: UpdateProfileDTO, @Req() req) <{ user: any }> {
-        const user = req.user;
-        return this.userService.updateProfile(updateProfileDTO, user);
+    @Get('/get-user')
+    getUser(@Req() req): Promise<{ user:any }> {
+        return this.userService.getUser(req);
+    }
+
+    @Patch('/update-profile')
+    updateProfile(@Body() updateProfileDTO: UpdateProfileDTO, @Req() req): Promise<{ user: any }> {
+        return this.userService.updateProfile(updateProfileDTO, req);
+    }
+
+    @Delete('/delete-user')
+    deleteUserAccount(@Req() req) {
+        return this.userService.deleteAccount(req);
     }
 }

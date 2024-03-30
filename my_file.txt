@@ -1,0 +1,3 @@
+DB_URL=mongodb+srv://Fitenson:031010130127@projectmanagement.w8emtio.mongodb.net/
+JWT_SECRET=Project101
+JWT_EXPIRE=6h

@@ -14,6 +14,9 @@ export class User {
     @Prop()
     username: string
 
+    @Prop()
+    role: string
+
     @Prop({ unique: [true, 'User with this email already exist']})
     email: string
 
