@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Room } from './room.schema';
-import { CreateNewRoom } from './dto/create-new-room.dto';
+import { CreateNewRoomDTO } from './dto/create-new-room.dto';
 import { Liveblocks } from '@liveblocks/node';
 
 
@@ -13,10 +13,10 @@ export class RoomService {
         private roomModel: Model<Room>
     ){}
 
-    async createNewDesign(createNewRoom:CreateNewRoom):Promise<{ room:any , message: string }> {
-        const { roomName } = createNewRoom;
+    async createNewRoom(createNewRoomDTO:CreateNewRoomDTO):Promise<{ room:any , message: string }> {
+        const { roomName } = createNewRoomDTO;
 
-        const existingRoom = await this.roomModel.findOne({roomName});
+        const existingRoom = await this.roomModel.findOne({ roomName });
 
         if(existingRoom) {
             return { room:null, message: 'Room with this name already exist.'}
