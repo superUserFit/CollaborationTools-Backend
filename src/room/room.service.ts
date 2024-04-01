@@ -13,23 +13,27 @@ export class RoomService {
         private roomModel: Model<Room>
     ){}
 
-    async createNewRoom(createNewRoomDTO:CreateNewRoomDTO):Promise<{ room:any , message: string }> {
-        const { roomName } = createNewRoomDTO;
+    async createNewRoom(createNewRoomDTO:CreateNewRoomDTO, req:Request):Promise<{ status: number, room:any , message: string }> {
+        try {
+            const { roomName } = createNewRoomDTO;
 
-        const existingRoom = await this.roomModel.findOne({ roomName });
+            const existingRoom = await this.roomModel.findOne({ roomName });
 
-        if(existingRoom) {
-            return { room:null, message: 'Room with this name already exist.'}
+            if(existingRoom) {
+                return { status: 401, room:null, message: 'Room with this name already exist.'}
+            }
+
+            const liveblocks = new Liveblocks({ secret: process.env.LIVEBLOCKS_SECRET_KEY });
+
+            const liveblocksRoom = await liveblocks.createRoom(roomName, {
+                defaultAccesses: ['room:write']
+            });
+
+            await this.roomModel.create({ roomName, admin: req['user'].id  , users: req['user'].id});
+
+            return { status: 200, room: liveblocksRoom, message: 'A room has been created.' };
+        } catch (error) {
+            return { status: 500, room: null, message: 'Internal server error' };
         }
-
-        const liveblocks = new Liveblocks({ secret: process.env.LIVEBLOCKS_SECRET_KEY });
-
-        const liveblocksRoom = await liveblocks.createRoom(roomName, {
-            defaultAccesses: ['room:write']
-        });
-
-        await this.roomModel.create({ roomName });
-
-        return { room: liveblocksRoom, message: 'A room has been created.' };
     }
 }

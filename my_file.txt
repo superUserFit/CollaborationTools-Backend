@@ -1,3 +1,5 @@
 DB_URL=mongodb+srv://Fitenson:031010130127@projectmanagement.w8emtio.mongodb.net/
 JWT_SECRET=Project101
 JWT_EXPIRE=6h
+LIVEBLOCKS_PUBLIC_KEY=pk_dev_IAfoslG78VYldeqBApgYcsJaw0VQOtdMMwdeaDgPpMbOMn0B2A8VEfnxs-TIaL1X
+LIVEBLOCKS_SECRET_KEY=sk_dev_t5H6PwL9-P3o5eWdmb1KoRkSEENHzVaoIvCZ8PbvhY5GCKGiJTgl3NNnWGlbAgra
