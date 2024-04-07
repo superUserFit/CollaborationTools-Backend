@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Room } from './room.schema';
-import { CreateNewRoomDTO } from './dto/create-new-room.dto';
+import { User } from 'src/user/user.schema';
+import { CreateRoomDTO } from './dto/create-room.dto';
 import { Liveblocks } from '@liveblocks/node';
 
 
@@ -10,18 +11,23 @@ import { Liveblocks } from '@liveblocks/node';
 export class RoomService {
     constructor(
         @InjectModel(Room.name)
-        private roomModel: Model<Room>
+        private RoomModel: Model<Room>,
+
+        @InjectModel(User.name)
+        private UserModel: Model<User>
     ){}
 
-    async createNewRoom(createNewRoomDTO:CreateNewRoomDTO, req:Request):Promise<{ status: number, room:any , message: string }> {
+    async createNewRoom(createRoomDTO:CreateRoomDTO, req:Request):Promise<{ status: number, room:any , message: string }> {
         try {
-            const { roomName } = createNewRoomDTO;
+            const { roomName } = createRoomDTO;
 
-            const existingRoom = await this.roomModel.findOne({ roomName });
+            const existingRoom = await this.RoomModel.findOne({ roomName });
 
             if(existingRoom) {
                 return { status: 401, room:null, message: 'Room with this name already exist.'}
             }
+
+            const user = await this.UserModel.findById(req['user'].id);
 
             const liveblocks = new Liveblocks({ secret: process.env.LIVEBLOCKS_SECRET_KEY });
 
@@ -29,10 +35,11 @@ export class RoomService {
                 defaultAccesses: ['room:write']
             });
 
-            await this.roomModel.create({ roomName, admin: req['user'].id  , users: req['user'].id});
+            await this.RoomModel.create({ roomName, admin: user._id  , users: user._id });
 
             return { status: 200, room: liveblocksRoom, message: 'A room has been created.' };
         } catch (error) {
+            console.error(error);
             return { status: 500, room: null, message: 'Internal server error' };
         }
     }

@@ -28,6 +28,6 @@ import { JwtStrategy } from './jwt.strategy';
   ],
   controllers: [UserController],
   providers: [UserService, JwtStrategy],
-  exports: [JwtStrategy, PassportModule]
+  exports: [JwtStrategy, PassportModule, UserService, MongooseModule]
 })
 export class UserModule {}
