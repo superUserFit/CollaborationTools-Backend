@@ -8,36 +8,42 @@ import {
     Delete
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { SignUpDTO } from './dto/signup.dto';
-import { LoginDTO } from './dto/login.dto';
-import { UpdateProfileDTO } from './dto/update-profile.dto';
+import {
+    LoginRequest,
+    SignUpRequest,
+    UpdateProfileRequest
+} from './api/requests';
 
 @Controller('api/user')
 export class UserController {
-    constructor(private userService: UserService) {}
+    constructor(private UserService: UserService) {}
 
     @Post('/signup')
-    signUp(@Body() signUpDTO: SignUpDTO): Promise<{ token:string }> {
-        return this.userService.signUp(signUpDTO);
+    signUp(@Body() signUpRequest: SignUpRequest): Promise<{ token:string }> {
+        return this.UserService.signUp(signUpRequest);
     }
 
     @Post('/login')
-    login(@Body() loginDTO: LoginDTO): Promise<{ token:string }> {
-        return this.userService.login(loginDTO);
+    login(@Body() loginRequest: LoginRequest): Promise<{ token:string }> {
+        return this.UserService.login(loginRequest);
     }
 
     @Get('/get-user')
     getUser(@Req() req): Promise<{ user:any }> {
-        return this.userService.getUser(req);
+        return this.UserService.getUser(req);
     }
 
     @Patch('/update-profile')
-    updateProfile(@Body() updateProfileDTO: UpdateProfileDTO, @Req() req): Promise<{ user: any }> {
-        return this.userService.updateProfile(updateProfileDTO, req);
+    updateProfile(@Body() updateProfileRequest: UpdateProfileRequest, @Req() req): Promise<{ user: any }> {
+        const request = updateProfileRequest;
+        request.user_id = req['user'].id;
+
+        return this.UserService.updateProfile(request);
     }
+
 
     @Delete('/delete-user')
     deleteUserAccount(@Req() req) {
-        return this.userService.deleteAccount(req);
+        return this.UserService.deleteAccount(req);
     }
 }

@@ -5,9 +5,10 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { RoomSchema } from './room.schema';
+import { RoomSchema } from './model/room.schema';
 import { JwtStrategy } from 'src/user/jwt.strategy';
-import { UserModule } from 'src/user/user.module'; // Import UserModule
+import { UserModule } from 'src/user/user.module';
+import { RoomRepository } from './room.repository';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { UserModule } from 'src/user/user.module'; // Import UserModule
     MongooseModule.forFeature([{ name: 'Room', schema: RoomSchema }]),
   ],
   controllers: [RoomController],
-  providers: [RoomService, JwtStrategy],
+  providers: [RoomService, RoomRepository, JwtStrategy],
   exports: [JwtStrategy, PassportModule]
 })
 export class RoomModule {}

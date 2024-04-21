@@ -1,46 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Room } from './room.schema';
-import { User } from 'src/user/user.schema';
-import { CreateRoomDTO } from './dto/create-room.dto';
 import { Liveblocks } from '@liveblocks/node';
+
+import { RoomRepository } from './room.repository';
+import { CreateRoomRequest, DeleteRoomRequest } from './api/requests';
 
 
 @Injectable()
 export class RoomService {
     constructor(
-        @InjectModel(Room.name)
-        private RoomModel: Model<Room>,
-
-        @InjectModel(User.name)
-        private UserModel: Model<User>
+        private readonly RoomRepository: RoomRepository
     ){}
 
-    async createNewRoom(createRoomDTO:CreateRoomDTO, req:Request):Promise<{ status: number, room:any , message: string }> {
-        try {
-            const { roomName } = createRoomDTO;
+    async createNewRoom(createRoomRequest:CreateRoomRequest):Promise<{ room:any , message: string }> {
+        const room = await this.RoomRepository.createRoom(createRoomRequest);
+        const liveblocks = new Liveblocks({ secret: process.env.LIVEBLOCKS_SECRET_KEY });
 
-            const existingRoom = await this.RoomModel.findOne({ roomName });
+        const liveblocksRoom = await liveblocks.createRoom(room.roomName, {
+            defaultAccesses: ['room:write']
+        });
 
-            if(existingRoom) {
-                return { status: 401, room:null, message: 'Room with this name already exist.'}
-            }
+        return { room: liveblocksRoom, message: 'A room has been created.' };
+    }
 
-            const user = await this.UserModel.findById(req['user'].id);
+    async getIndexRoom(req: Request):Promise<{ rooms: any }> {
+        const liveblocks = new Liveblocks({ secret: process.env.LIVEBLOCKS_SECRET_KEY });
+        const rooms = await liveblocks.getRooms();
 
-            const liveblocks = new Liveblocks({ secret: process.env.LIVEBLOCKS_SECRET_KEY });
+        return { rooms: rooms };
+    }
 
-            const liveblocksRoom = await liveblocks.createRoom(roomName, {
-                defaultAccesses: ['room:write']
-            });
+    async deleteRoom(deleteRequest: DeleteRoomRequest):Promise<{ message:string }> {
+        const { roomName } = deleteRequest;
+        const liveblocks = new Liveblocks({ secret: process.env.LIVEBLOCKS_SECRET_KEY });
 
-            await this.RoomModel.create({ roomName, admin: user._id  , users: user._id });
+        await liveblocks.deleteRoom(roomName);
 
-            return { status: 200, room: liveblocksRoom, message: 'A room has been created.' };
-        } catch (error) {
-            console.error(error);
-            return { status: 500, room: null, message: 'Internal server error' };
-        }
+        return { message: 'Room deleted successfully.' };
     }
 }

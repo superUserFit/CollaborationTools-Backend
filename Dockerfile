@@ -2,13 +2,14 @@ FROM node:20.7 as build
 
 WORKDIR /app
 COPY package*.json .
-RUN pnpm i
+RUN npm install
 COPY . .
-RUN pnpm run build
+RUN npm run build
 
 FROM node:20.7
 WORKDIR /app
 COPY package.json .
-RUN pnpm i --only=production
+RUN npm install --only=production
 COPY --from=build /app/dist ./dist
-CMD pnpm run start:prod
+EXPOSE 5000
+CMD npm run start:prod

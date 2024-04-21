@@ -1,12 +1,17 @@
 import { Injectable, NestMiddleware } from "@nestjs/common";
 import { Request, Response, NextFunction } from "express";
 import { JwtService } from "@nestjs/jwt";
+import { Helpers } from "src/common/Helpers";
+
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-    constructor(private readonly jwtService: JwtService) {}
+    constructor(
+        private readonly JwtService: JwtService,
+        private readonly Helpers: Helpers
+    ) {}
 
-    use(req: Request, res: Response, next: NextFunction) {
+    async use(req: Request, res: Response, next: NextFunction) {
         const token = req.headers.authorization?.split(' ')[1];
 
         if(!token) {
@@ -14,7 +19,7 @@ export class AuthMiddleware implements NestMiddleware {
         }
 
         try {
-            const user = this.jwtService.verify(JSON.parse(token));
+            const user = await this.JwtService.verify(JSON.parse(token));
 
             req['user'] = user;
 

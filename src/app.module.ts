@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthMiddleware } from './middleware/Auth.middleware';
 import { JwtModule } from '@nestjs/jwt';
 import { RoomModule } from './room/room.module';
+import { Helpers } from './common/Helpers';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { RoomModule } from './room/room.module';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, Helpers],
 })
 
 export class AppModule implements NestModule{
