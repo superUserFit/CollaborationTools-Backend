@@ -35,10 +35,8 @@ export class UserController {
 
     @Patch('/update-profile')
     updateProfile(@Body() updateProfileRequest: UpdateProfileRequest, @Req() req): Promise<{ user: any }> {
-        const request = updateProfileRequest;
-        request.user_id = req['user'].id;
-
-        return this.UserService.updateProfile(request);
+        updateProfileRequest.user_id = req['user'].id;
+        return this.UserService.updateProfile(updateProfileRequest);
     }
 
 

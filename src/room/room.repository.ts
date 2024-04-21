@@ -32,13 +32,22 @@ export class RoomRepository {
         return room;
     }
 
-    public getIndexRoom = async (req) => {
-        const rooms = await this.RoomModel.find({ users: req['user'].id });
+    public getIndexRoom = async (user_id) => {
+        const rooms = await this.RoomModel.find({ users: user_id });
 
         return rooms;
     }
 
-    // public deleteRoom = async (request, req) => {
-    //     const room = await this.RoomModel.findByIdAndDelete();
-    // }
+    public deleteRoom = async (request) => {
+        const { roomName, user_id } = request;
+        const room = await this.RoomModel.findOne({ roomName:roomName });
+
+        if(room.admin !== user_id) {
+            throw new UnauthorizedException('Unauthorized user.');
+        }
+
+        await room.deleteOne();
+
+        return true;
+    }
 }

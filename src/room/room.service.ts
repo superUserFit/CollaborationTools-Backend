@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Liveblocks } from '@liveblocks/node';
 
 import { RoomRepository } from './room.repository';
@@ -7,33 +7,37 @@ import { CreateRoomRequest, DeleteRoomRequest } from './api/requests';
 
 @Injectable()
 export class RoomService {
-    constructor(
-        private readonly RoomRepository: RoomRepository
-    ){}
+    private readonly liveblocks: Liveblocks;
+    constructor(private readonly RoomRepository: RoomRepository){
+        this.liveblocks = new Liveblocks({ secret: process.env.LIVEBLOCKS_SECRET_KEY });
+    }
 
     async createNewRoom(createRoomRequest:CreateRoomRequest):Promise<{ room:any , message: string }> {
         const room = await this.RoomRepository.createRoom(createRoomRequest);
-        const liveblocks = new Liveblocks({ secret: process.env.LIVEBLOCKS_SECRET_KEY });
 
-        const liveblocksRoom = await liveblocks.createRoom(room.roomName, {
+        const liveblocksRoom = await this.liveblocks.createRoom(room.roomName, {
             defaultAccesses: ['room:write']
         });
 
         return { room: liveblocksRoom, message: 'A room has been created.' };
     }
 
-    async getIndexRoom(req: Request):Promise<{ rooms: any }> {
-        const liveblocks = new Liveblocks({ secret: process.env.LIVEBLOCKS_SECRET_KEY });
-        const rooms = await liveblocks.getRooms();
+    async getIndexRoom(user_id):Promise<{ rooms: any }> {
+        const rooms = await this.RoomRepository.getIndexRoom(user_id);
 
-        return { rooms: rooms };
+        const liveblockRooms = await this.liveblocks.getRooms({ groupIds: rooms });
+
+        return { rooms: liveblockRooms };
     }
 
     async deleteRoom(deleteRequest: DeleteRoomRequest):Promise<{ message:string }> {
-        const { roomName } = deleteRequest;
-        const liveblocks = new Liveblocks({ secret: process.env.LIVEBLOCKS_SECRET_KEY });
+        const deleteRoom = await this.RoomRepository.deleteRoom(deleteRequest);
 
-        await liveblocks.deleteRoom(roomName);
+        if(!deleteRoom) {
+            throw new ForbiddenException('Failed to delete room.');
+        }
+
+        await this.liveblocks.deleteRoom(deleteRequest.roomName);
 
         return { message: 'Room deleted successfully.' };
     }

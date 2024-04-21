@@ -9,22 +9,19 @@ export class RoomController {
 
     @Post('/create-room')
     createRoom(@Body() createRoomRequest:CreateRoomRequest, @Req() req): Promise<{ room:any }> {
-        const request = createRoomRequest;
-        request.user_id = req['user'].id;
+        createRoomRequest.user_id = req['user'].id;
 
-        return this.RoomService.createNewRoom(request);
+        return this.RoomService.createNewRoom(createRoomRequest);
     }
 
     @Get('/get-index-room')
     getIndexRoom(@Req() req): Promise<{ rooms:any }> {
-        return this.RoomService.getIndexRoom(req);
+        return this.RoomService.getIndexRoom(req['user'].id);
     }
 
     @Delete('/delete-room')
     deleteRoom(@Body() deleteRoomRequest:DeleteRoomRequest, @Req() req): Promise<{ message:any }> {
-        const request = deleteRoomRequest;
-        request.user_id = req['user'].id;
-
+        deleteRoomRequest.user_id = req['user'].id;
         return this.RoomService.deleteRoom(deleteRoomRequest);
     }
 }

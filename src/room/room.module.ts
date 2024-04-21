@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { RoomController } from './room.controller';
-import { RoomService } from './room.service';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+
+import { RoomController } from './room.controller';
+import { RoomService } from './room.service';
 import { RoomSchema } from './model/room.schema';
 import { JwtStrategy } from 'src/user/jwt.strategy';
 import { UserModule } from 'src/user/user.module';
@@ -30,6 +31,6 @@ import { RoomRepository } from './room.repository';
   ],
   controllers: [RoomController],
   providers: [RoomService, RoomRepository, JwtStrategy],
-  exports: [JwtStrategy, PassportModule]
+  exports: [RoomService, JwtStrategy, PassportModule, MongooseModule]
 })
 export class RoomModule {}
